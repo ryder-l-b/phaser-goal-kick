@@ -2,8 +2,25 @@ import Phaser from 'phaser'
 
 export default class goalKickScene extends Phaser.Scene {
 
-	constructor() {
-		super('hello-world')
+	constructor(game) {
+		super(game)
+        this.game = game
+        this.input;
+
+        this.path;
+        this.curve;
+        this.points;
+        this.graphics;
+
+        this.landingX = 40;
+
+        this.startPoint = new Phaser.Math.Vector2(175, 700);
+        this.controlPoint1 = new Phaser.Math.Vector2(180, 100);
+        this.endPoint = new Phaser.Math.Vector2(this.landingX, 380);
+
+        this.point0;
+        this.point1;
+        this.point2;
 	}
 
 	preload() {
@@ -53,17 +70,17 @@ export default class goalKickScene extends Phaser.Scene {
         uiArrow.rotation = uiArrowAngle
     });
 
-    var gfx = this.add.graphics().setDefaultStyles({ lineStyle: { width: 5, color: 0xBADA55, alpha: 0.5 } });
-    var line = new Phaser.Geom.Line();
-    var angle = 0;
-    var uiArrowAngle = 0;
+    // var gfx = this.add.graphics().setDefaultStyles({ lineStyle: { width: 5, color: 0xBADA55, alpha: 0.5 } });
+    // var line = new Phaser.Geom.Line();
+    // var angle = 0;
+    // var uiArrowAngle = 0;
 
-    // //draws line to mouse from arrow origin
-    // this.input.on('pointermove', function (pointer) {
-    //     angle = Phaser.Math.Angle.BetweenPoints(uiArrow, pointer);
-    //     Phaser.Geom.Line.SetToAngle(line, uiArrow.x, uiArrow.y, angle, 245);
-    //     gfx.clear().strokeLineShape(line);
-    // }, this);
+    //draws line to mouse from arrow origin
+    this.input.on('pointermove', function (pointer) {
+        angle = Phaser.Math.Angle.BetweenPoints(uiArrow, pointer);
+        Phaser.Geom.Line.SetToAngle(line, uiArrow.x, uiArrow.y, angle, 245);
+        gfx.clear().strokeLineShape(line);
+    }, this);
 
 
     //        __                                                
@@ -72,56 +89,41 @@ export default class goalKickScene extends Phaser.Scene {
     // / /_/ / /  / /_/ /| |/ |/ /  / /__/ /_/ / /   | |/ /  __/
     // \__,_/_/   \__,_/ |__/|__/   \___/\__,_/_/    |___/\___/  
 
-    let path;
-    let curve;
-    let points;
-    let graphics;
+    this.game.landingX = this.input.mousePointer.x
 
-    let landingX = this.input.mousePointer.x;
+    this.graphics = this.add.graphics();
 
-    graphics = this.add.graphics();
+    this.path = { t: 0, vec: new Phaser.Math.Vector2() };
 
-    path = { t: 0, vec: new Phaser.Math.Vector2() };
 
-    let startPoint = new Phaser.Math.Vector2(175, 700);
-    let controlPoint1 = new Phaser.Math.Vector2(180, 100);
-    let endPoint = new Phaser.Math.Vector2(landingX, 380);
+    this.curve = new Phaser.Curves.QuadraticBezier(this.startPoint, this.controlPoint1, this.endPoint);
 
-    curve = new Phaser.Curves.QuadraticBezier(startPoint, controlPoint1, endPoint);
-
-    points = curve.getSpacedPoints(32);
-
-    let point0 = this.add.image(startPoint.x, startPoint.y, 'ball', 0).setTint(0x0000)
-    let point1 = this.add.image(endPoint.x, endPoint.y, 'ball', 0).setTint(0x0000ff)
-    let point2 = this.add.image(controlPoint1.x, controlPoint1.y, 'ball').setTint(0xff0000)
-
-    point0.setData('vector', startPoint);
-    point1.setData('vector', endPoint);
-    point2.setData('vector', controlPoint1);
-
-    this.tweens.add({
-        targets: path,
-        t: 1,
-        ease: 'Sine.easeInOut',
-        duration: 2000,
-        yoyo: true,
-        repeat: -1
-    });
-
-    graphics.clear();
-
-    //  Draw the curve through the points
-    graphics.lineStyle(1, 0xff00ff, 1);
-
-    curve.draw(graphics);
-
-    //  Draw t
-    curve.getPoint(path.t, path.vec);
+    // this.input.setDraggable([ this.point0, this.point1, this.point2 ]);
     
-    graphics.fillStyle(0xffff00, 1);
-    graphics.fillCircle(path.vec.x, path.vec.y, 16);
+    // this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+    //     gameObject.x = dragX;
+    //     gameObject.y = dragY;
 
-    
+    //     gameObject.data.get('vector').set(dragX, dragY);
+
+    //     //  Get 32 points equally spaced out along the curve
+    //     this.points = this.curve.getSpacedPoints(32);
+    // });
+
+    this.points = this.curve.getSpacedPoints(32);
+
+    this.point0 = this.add.image(this.startPoint.x, this.startPoint.y, 'ball', 0).setTint(0x0000)
+    this.point1 = this.add.image(this.endPoint.x, this.endPoint.y, 'ball', 0).setTint(0x0000ff)
+    this.point2 = this.add.image(this.controlPoint1.x, this.controlPoint1.y, 'ball').setTint(0xff0000)
+
+    this.point0.setData('vector', this.startPoint);
+    this.point1.setData('vector', this.endPoint);
+    this.point2.setData('vector', this.controlPoint1);
+
+    this.point0.setData('isControl', false);
+    this.point1.setData('isControl', false);
+    this.point2.setData('isControl', true);
+
 
     //                                    __              
     //     ____  ____ _      _____  _____/ /_  ____ ______
@@ -143,6 +145,28 @@ export default class goalKickScene extends Phaser.Scene {
 	}
     update() {
     //console.log("updating");
-        
+    
+    this.tweens.add({
+        targets: this.path,
+        t: 1,
+        ease: 'Sine.easeInOut',
+        duration: 100,
+        yoyo: true,
+        repeat: -1
+    });
+
+    this.graphics.clear();
+
+    //  Draw the curve through the points
+    this.graphics.lineStyle(1, 0xff00ff, 1);
+
+    this.curve.draw(this.graphics);
+
+    //  Draw t
+    this.curve.getPoint(this.path.t, this.path.vec);
+    
+    this.graphics.fillStyle(0xffff00, 1);
+    this.graphics.fillCircle(this.path.vec.x, this.path.vec.y, 16);
+
     }
 }

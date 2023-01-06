@@ -2,12 +2,16 @@ import Phaser from 'phaser'
 
 export default class phaserTest extends Phaser.Scene {
 
-	constructor() {
-		super('hello-world')
-        this.graphics = undefined
-        let graphics;
-        let mouseX;
-        let mouseY;
+	constructor(game) {
+		super(game)
+        this.game = game
+        this.graphics = undefined;
+        this.landingX = 80;
+        this.landingY = 100;            
+        this.path;
+        this.curve;
+        this.points;
+        this.graphics;
 	}
 
 	preload() {
@@ -35,10 +39,10 @@ export default class phaserTest extends Phaser.Scene {
     //  / .___/\____/____/_/\__/_/\____/_/ /_/____/  
     // /_/                                           
         
-    //original positions
-    //this.add.image(180, 400, 'fieldBG');
-    //this.add.image(180, 400, 'goals');
-    this.add.image(175, 700, 'ball').setTint(0x75000d);
+    // //original positions
+    // this.add.image(180, 400, 'fieldBG');
+    // this.add.image(180, 400, 'goals');
+    // this.add.image(175, 700, 'ball').setTint(0x75000d);
 
     //position UI elements
     //let uiArrow = this.add.image(175, 685, 'ui-arrow').setOrigin(0, .5);
@@ -100,7 +104,7 @@ export default class phaserTest extends Phaser.Scene {
     var points;
     let graphics; 
     
-    let landingX = this.input.mousePointer.x;
+
 
     graphics = this.add.graphics();
 
@@ -108,7 +112,7 @@ export default class phaserTest extends Phaser.Scene {
 
     var startPoint = new Phaser.Math.Vector2(175, 700);
     var controlPoint1 = new Phaser.Math.Vector2(180, 100);
-    var endPoint = new Phaser.Math.Vector2(120, 380);
+    var endPoint = new Phaser.Math.Vector2(this.landingX, this.landingY);
 
     curve = new Phaser.Curves.QuadraticBezier(startPoint, controlPoint1, endPoint);
 
