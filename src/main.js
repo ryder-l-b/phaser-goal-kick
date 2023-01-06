@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 
 import goalKickScene from './goalKick'
+import phaserTest from './phaserTestScene'
 
 const config = {
 	type: Phaser.AUTO,
@@ -10,10 +11,11 @@ const config = {
 	physics: {
 		default: 'arcade',
 		arcade: {
-			gravity: { y: 200 },
+			gravity: { y: 200 }
 		},
 	},
-	scene: [goalKickScene],
+	scene: [phaserTest],
+	//scene: [goalKickScene],
 }
 
 export default new Phaser.Game(config)
