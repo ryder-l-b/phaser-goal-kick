@@ -53,23 +53,23 @@ export default class phaserTest extends Phaser.Scene {
     //   / /_/ / /  / /_/ / /  / /  / /_/ / |/ |/ / 
     //   \__,_/_/   \__,_/_/  /_/   \____/|__/|__/  
                                                     
-    // //logic for angling arrow towards mouse
-    // var uiArrowAngle = 0;
-    // this.input.on('pointermove', function(pointer) {
-    //     uiArrowAngle = Phaser.Math.Angle.BetweenPoints(uiArrow, pointer);
-    //     uiArrow.rotation = uiArrowAngle
-    // });
+    //logic for angling arrow towards mouse
+    var uiArrowAngle = 0;
+    this.input.on('pointermove', function(pointer) {
+        uiArrowAngle = Phaser.Math.Angle.BetweenPoints(uiArrow, pointer);
+        uiArrow.rotation = uiArrowAngle
+    });
 
-    // var gfx = this.add.graphics().setDefaultStyles({ lineStyle: { width: 5, color: 0xBADA55, alpha: 0.5 } });
-    // var line = new Phaser.Geom.Line();
-    // var angle = 0;
+    var gfx = this.add.graphics().setDefaultStyles({ lineStyle: { width: 5, color: 0xBADA55, alpha: 0.5 } });
+    var line = new Phaser.Geom.Line();
+    var angle = 0;
 
-    // //draws line to mouse from arrow origin
-    // this.input.on('pointermove', function (pointer) {
-    //     angle = Phaser.Math.Angle.BetweenPoints(uiArrow, pointer);
-    //     Phaser.Geom.Line.SetToAngle(line, uiArrow.x, uiArrow.y, angle, 245);
-    //     gfx.clear().strokeLineShape(line);
-    // }, this);
+    //draws line to mouse from arrow origin
+    this.input.on('pointermove', function (pointer) {
+        angle = Phaser.Math.Angle.BetweenPoints(uiArrow, pointer);
+        Phaser.Geom.Line.SetToAngle(line, uiArrow.x, uiArrow.y, angle, 245);
+        gfx.clear().strokeLineShape(line);
+    }, this);
     
     //                                    __              
     //     ____  ____ _      _____  _____/ /_  ____ ______

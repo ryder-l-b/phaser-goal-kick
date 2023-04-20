@@ -3,7 +3,7 @@ export default class gameUI {
     this.game = game
 
     this.pointer = Phaser.Input.Pointer;
-    this.uiArrow = game.add.image(175, 685, 'ui-arrow').setOrigin(0, .5);
+    this.uiArrow = game.add.image(175, 685, 'ui-arrow').setOrigin(0, .25);
     this.uiArrowRotation = this.uiArrow.rotation;
     this.uiPowerbar = game.add.image(330, 635, 'ui-powerbar');
     this.uiArrowAngle = 90;

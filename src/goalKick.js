@@ -7,10 +7,14 @@ export default class goalKickScene extends Phaser.Scene {
         this.game = game
         this.input;
 
+        //this.mouseX = this.input.mousePointer;
+
         this.path;
         this.curve;
         this.points;
         this.graphics;
+
+        this.uiArrow;
 
         this.landingX = 40;
 
@@ -52,7 +56,7 @@ export default class goalKickScene extends Phaser.Scene {
     this.add.image(175, 700, 'ball').setTint(0x75000d);
 
     //position UI elements
-    let uiArrow = this.add.image(175, 685, 'ui-arrow').setOrigin(0, .5);
+    this.uiArrow = this.add.image(175, 685, 'ui-arrow').setOrigin(0, .5);
     let powerLevel = this.add.image(330, 775, 'ui-powerbarFill').setOrigin(0.5, 1);
     this.add.image(330, 635, 'ui-powerbar');
 
@@ -66,14 +70,14 @@ export default class goalKickScene extends Phaser.Scene {
                                                     
     //logic for angling arrow towards mouse
     this.input.on('pointermove', function(pointer) {
-        uiArrowAngle = Phaser.Math.Angle.BetweenPoints(uiArrow, pointer);
-        uiArrow.rotation = uiArrowAngle
+        this.uiArrowAngle = Phaser.Math.Angle.BetweenPoints(this.uiArrow, pointer);
+        this.uiArrow.rotation = this.uiArrowAngle
     });
 
-    // var gfx = this.add.graphics().setDefaultStyles({ lineStyle: { width: 5, color: 0xBADA55, alpha: 0.5 } });
-    // var line = new Phaser.Geom.Line();
-    // var angle = 0;
-    // var uiArrowAngle = 0;
+    var gfx = this.add.graphics().setDefaultStyles({ lineStyle: { width: 5, color: 0xBADA55, alpha: 0.5 } });
+    var line = new Phaser.Geom.Line();
+    var angle = 0;
+    var uiArrowAngle = 0;
 
     //draws line to mouse from arrow origin
     this.input.on('pointermove', function (pointer) {
@@ -144,13 +148,13 @@ export default class goalKickScene extends Phaser.Scene {
 
 	}
     update() {
-    //console.log("updating");
+    //console.log(this.mouseX);
     
     this.tweens.add({
         targets: this.path,
         t: 1,
         ease: 'Sine.easeInOut',
-        duration: 100,
+        duration: 300,
         yoyo: true,
         repeat: -1
     });
