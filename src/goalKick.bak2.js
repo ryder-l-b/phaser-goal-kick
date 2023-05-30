@@ -31,15 +31,10 @@ export default class goalKickScene extends Phaser.Scene {
         this.shotPower = null;
         this.shotAngle = null;
 
-        this.gameState = {
-            IDLE: 0,
-            SETTING_ANGLE: 1,
-            SETTING_POWER: 2,
-            ANIMATING_GOAL: 3,
-        };
+        this.started = false;
 
-        this.currentGameState = this.gameState.IDLE;
-
+        this.angleSet = false;
+        this.powerSet = false;
 	}
 
 	preload() {
@@ -148,15 +143,27 @@ export default class goalKickScene extends Phaser.Scene {
             repeat: -1,
         });
 
-        // Register the pointerdown event
-        this.input.on('pointerdown', this.handleClick, this);
-
-
 	}
     update() {
 
+        // this.tweens.add({
+        //     targets: this.path,
+        //     t: 1,
+        //     ease: 'Linear',
+        //     duration: 3000,
+        //     yoyo: false,
+        // });
+
+        
+
+        //orient uiArow towards the position of endPoint
+        this.uiArrow.setRotation(Phaser.Math.Angle.BetweenPoints(this.startPoint, this.endPoint));
+
+        // Update the UI text with the locked powerLevel value
+        this.shotPowerText.setText(`Power: ${Math.floor(this.lockedPowerLevel)}`);
+
         this.graphics.clear();
-                
+        
         //  Draw the curve through the points
         this.graphics.lineStyle(9, 0xff0080, 0.25);
 
@@ -171,102 +178,8 @@ export default class goalKickScene extends Phaser.Scene {
         this.graphics.fillStyle(0xffff00, 1);
         this.graphics.fillCircle(this.path.vec.x, this.path.vec.y, 8);
 
-        switch (this.currentGameState) {
-
-            case this.gameState.SETTING_ANGLE:
-                // Update logic for rotating arrow animation
-                
-                //orient uiArow towards the position of endPoint
-                this.uiArrow.setRotation(Phaser.Math.Angle.BetweenPoints(this.startPoint, this.endPoint));
-
-                // Update logic for setting angle
-                this.lockedShotAngle = this.uiArrow.rotation;
-    
-                // Log the value of the locked shot angle
-                this.shotAngleText.setText(`Angle: ${Math.floor(Phaser.Math.RadToDeg(this.lockedShotAngle))}`);
-
-                break;
-
-
-            case this.gameState.SETTING_POWER:
-                this.tweens.killTweensOf(this.endPoint);
-                this.tweens.add({
-                    targets: this,
-                    shotPower: 100,
-                    duration: 1500,
-                    yoyo: true,
-                    repeat: -1,
-                    ease: 'Cubic.In',
-                    onUpdate: () => {
-                        // Update shotPowerText during the tween
-                        // this.shotPowerText.setText(`Power: ${Math.floor(this.shotPower)}`);
-    
-                        // Update Y scale of powerLevel during the tween
-                        const powerLevel = this.children.getByName('powerLevel');
-                        const scaleFactor = this.shotPower / 100;
-                        powerLevel.setScale(1, scaleFactor);
-                    }
-                });
-
-                break;
-
-            case this.gameState.ANIMATING_GOAL:
-                // Update logic for animating goal
-
-                // Update the UI text with the locked powerLevel value
-                this.shotPowerText.setText(`Power: ${Math.floor(this.lockedPowerLevel)}`);
-
-                this.tweens.add({
-                    targets: this.path,
-                    t: 1,
-                    ease: 'Linear',
-                    duration: 3000,
-                    yoyo: false,
-                });
-
-                break;
-            default:
-                this.uiArrow.setRotation(Phaser.Math.Angle.BetweenPoints(this.startPoint, this.endPoint));
-                console.log('default');
-                break;
-        }
-
     }
 
-    handleClick() {
-        switch (this.currentGameState) {
-            case this.gameState.IDLE:
-                this.currentGameState = this.gameState.SETTING_ANGLE;
-                // Start rotating arrow animation
-
-                console.log('animating arrow');
-                break;
-
-            case this.gameState.SETTING_ANGLE:
-                this.currentGameState = this.gameState.SETTING_POWER;
-                // Start tweening powerbar
-                //console.log('Angle:', Math.floor(Phaser.Math.RadToDeg(this.lockedShotAngle)));
-                break;
-
-            case this.gameState.SETTING_POWER:
-                this.currentGameState = this.gameState.ANIMATING_GOAL;
-                console.log('animating powerbar');
-                // Set the power level based on current powerbar scale
-                console.log('setting power');
-                break;
-
-            case this.gameState.ANIMATING_GOAL:
-                // Handle click during goal animation
-                console.log('animating goal');
-                break;
-
-            default:
-                console.log('idle');
-
-                break;
-
-        }
-    }
 
     incrementShotAngle() {
         this.started = true;
@@ -276,7 +189,7 @@ export default class goalKickScene extends Phaser.Scene {
     setShotAngle() {
         // Stop the tween if it's currently running
         this.tweens.killTweensOf(this.uiArrow);
-
+        this.tweens.killTweensOf(this.endPoint);
     
         // Lock the current shot angle
         this.lockedShotAngle = this.uiArrow.rotation;
@@ -294,7 +207,23 @@ export default class goalKickScene extends Phaser.Scene {
     }
 
     incrementShotPower() {
+            this.tweens.add({
+                targets: this,
+                shotPower: 100,
+                duration: 1500,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Cubic.In',
+                onUpdate: () => {
+                    // Update shotPowerText during the tween
+                    // this.shotPowerText.setText(`Power: ${Math.floor(this.shotPower)}`);
 
+                    // Update Y scale of powerLevel during the tween
+                    const powerLevel = this.children.getByName('powerLevel');
+                    const scaleFactor = this.shotPower / 100;
+                    powerLevel.setScale(1, scaleFactor);
+                }
+            });
     }
 
     setShotPower() {
