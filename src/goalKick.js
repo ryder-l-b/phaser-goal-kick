@@ -7,8 +7,6 @@ export default class goalKickScene extends Phaser.Scene {
         this.game = game
         this.input;
 
-        this.button;
-
         //this.mouseX = this.input.mousePointer;
 
         this.path;
@@ -17,11 +15,12 @@ export default class goalKickScene extends Phaser.Scene {
         this.graphics;
 
         this.uiArrow;
+        this.powerLevel;
 
         this.landingX = 40;
 
         this.startPoint = new Phaser.Math.Vector2(175, 700);
-        this.controlPoint1 = new Phaser.Math.Vector2(180, 100);
+        this.controlPoint1 = new Phaser.Math.Vector2(150, 100);
         this.endPoint = new Phaser.Math.Vector2(this.landingX, 380);
 
         this.point0;
@@ -34,8 +33,9 @@ export default class goalKickScene extends Phaser.Scene {
         this.gameState = {
             IDLE: 0,
             SETTING_ANGLE: 1,
-            SETTING_POWER: 2,
-            ANIMATING_GOAL: 3,
+            ANIMATING_POWER: 2,
+            SETTING_POWER: 3,
+            ANIMATING_GOAL: 4,
         };
 
         this.currentGameState = this.gameState.IDLE;
@@ -105,12 +105,13 @@ export default class goalKickScene extends Phaser.Scene {
         //  / .___/\____/|__/|__/\___/_/  /_.___/\__,_/_/     
         // /_/                                     
         
-        let powerLevel = this.add.image(330, 775, 'ui-powerbarFill').setOrigin(0.5, 1).setName('powerLevel');
+        this.powerLevel = this.add.image(330, 775, 'ui-powerbarFill').setOrigin(0.5, 1).setName('powerLevel');
         this.add.image(330, 635, 'ui-powerbar');
 
         // Set the initial scale of the power meter
-        powerLevel.setScale(1, 0);
+        this.powerLevel.setScale(1, 0);
 
+        
 
         
         //        __                                                
@@ -149,19 +150,22 @@ export default class goalKickScene extends Phaser.Scene {
         });
 
         // Register the pointerdown event
-        this.input.on('pointerdown', this.handleClick, this);
+        this.input.on('pointerup', this.handleClick, this);
 
 
 	}
     update() {
 
         this.graphics.clear();
-                
+
         //  Draw the curve through the points
         this.graphics.lineStyle(9, 0xff0080, 0.25);
 
         this.curve.draw(this.graphics);
 
+
+
+        // Ball animation
         //  Draw t
         this.curve.getPoint(this.path.t, this.path.vec);
         this.graphics.fillStyle(0xffff00, 1);
@@ -171,65 +175,59 @@ export default class goalKickScene extends Phaser.Scene {
         this.graphics.fillStyle(0xffff00, 1);
         this.graphics.fillCircle(this.path.vec.x, this.path.vec.y, 8);
 
+        //Game State Management
         switch (this.currentGameState) {
 
             case this.gameState.SETTING_ANGLE:
                 // Update logic for rotating arrow animation
-                
-                //orient uiArow towards the position of endPoint
-                this.uiArrow.setRotation(Phaser.Math.Angle.BetweenPoints(this.startPoint, this.endPoint));
 
+                this.tweens.killTweensOf(this.endPoint);
                 // Update logic for setting angle
                 this.lockedShotAngle = this.uiArrow.rotation;
     
                 // Log the value of the locked shot angle
                 this.shotAngleText.setText(`Angle: ${Math.floor(Phaser.Math.RadToDeg(this.lockedShotAngle))}`);
 
+                console.log(this.currentGameState);
+                this.currentGameState = this.gameState.ANIMATING_POWER;
+                this.powerAnimation();
                 break;
 
+            case this.gameState.ANIMATING_POWER:
+                // Update logic for animating power
+                this.point2.y = this.controlPoint1.y;
+
+                //console.log(this.currentGameState, 'ANIMATING_POWER');
+                break;
 
             case this.gameState.SETTING_POWER:
-                this.tweens.killTweensOf(this.endPoint);
-                this.tweens.add({
-                    targets: this,
-                    shotPower: 100,
-                    duration: 1500,
-                    yoyo: true,
-                    repeat: -1,
-                    ease: 'Cubic.In',
-                    onUpdate: () => {
-                        // Update shotPowerText during the tween
-                        // this.shotPowerText.setText(`Power: ${Math.floor(this.shotPower)}`);
-    
-                        // Update Y scale of powerLevel during the tween
-                        const powerLevel = this.children.getByName('powerLevel');
-                        const scaleFactor = this.shotPower / 100;
-                        powerLevel.setScale(1, scaleFactor);
-                    }
-                });
+                this.setPower();
 
+                this.shotPowerText.setText(`Power: ${Math.floor(this.powerLevel.scaleY * 100)}`);
+
+                this.currentGameState = this.gameState.ANIMATING_GOAL;
                 break;
 
             case this.gameState.ANIMATING_GOAL:
                 // Update logic for animating goal
+                this.animateGoal();
 
-                // Update the UI text with the locked powerLevel value
-                this.shotPowerText.setText(`Power: ${Math.floor(this.lockedPowerLevel)}`);
-
-                this.tweens.add({
-                    targets: this.path,
-                    t: 1,
-                    ease: 'Linear',
-                    duration: 3000,
-                    yoyo: false,
-                });
+                console.log(this.currentGameState , 'ANIMATING_GOAL');
 
                 break;
             default:
                 this.uiArrow.setRotation(Phaser.Math.Angle.BetweenPoints(this.startPoint, this.endPoint));
-                console.log('default');
+
+                console.log(this.currentGameState, 'default');
                 break;
         }
+
+
+        //draw points
+        this.point2.destroy(); // Remove the existing sprite
+        this.point2 = this.add.image(this.controlPoint1.x, this.controlPoint1.y, 'ball').setTint(0xff0000);
+
+        console.log(this.controlPoint1.y);
 
     }
 
@@ -239,75 +237,92 @@ export default class goalKickScene extends Phaser.Scene {
                 this.currentGameState = this.gameState.SETTING_ANGLE;
                 // Start rotating arrow animation
 
-                console.log('animating arrow');
                 break;
 
             case this.gameState.SETTING_ANGLE:
-                this.currentGameState = this.gameState.SETTING_POWER;
+                this.currentGameState = this.gameState.ANIMATING_POWER;
                 // Start tweening powerbar
                 //console.log('Angle:', Math.floor(Phaser.Math.RadToDeg(this.lockedShotAngle)));
                 break;
 
+            case this.gameState.ANIMATING_POWER:
+
+                this.currentGameState = this.gameState.SETTING_POWER;
+                // Start tweening powerbar
+                //console.log('Angle:', Math.floor(Phaser.Math.RadToDeg(this.lockedShotAngle)));
+                // Set the power level based on current powerbar scale
+                this.tweens.killTweensOf(this.powerLevel);
+                break;
+
             case this.gameState.SETTING_POWER:
                 this.currentGameState = this.gameState.ANIMATING_GOAL;
-                console.log('animating powerbar');
-                // Set the power level based on current powerbar scale
-                console.log('setting power');
+
                 break;
 
             case this.gameState.ANIMATING_GOAL:
                 // Handle click during goal animation
-                console.log('animating goal');
+                
+                this.currentGameState = this.gameState.default;
                 break;
 
             default:
-                console.log('idle');
-
                 break;
 
         }
     }
 
-    incrementShotAngle() {
-        this.started = true;
-        console.log("game started");
-    }
+    powerAnimation() {
+        this.tweens.add({
+            targets: this.powerLevel,
+            scaleY: 1,
+            duration: 1500,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Cubic.In',
+            onUpdate: () => {
+                const scaleYMin = 50;
+                const scaleYMax = 200;
     
-    setShotAngle() {
-        // Stop the tween if it's currently running
-        this.tweens.killTweensOf(this.uiArrow);
-
+                // Get the current scaleY value of the power bar
+                const currentScaleY = this.powerLevel.scaleY;
     
-        // Lock the current shot angle
-        this.lockedShotAngle = this.uiArrow.rotation;
+                // Calculate the normalized scaleY value
+                const normalizedScaleY = Phaser.Math.Clamp((currentScaleY - scaleYMin) / (scaleYMax - scaleYMin), 0, 1);
     
-        // Log the value of the locked shot angle
-        this.shotAngleText.setText(`Angle: ${Math.floor(Phaser.Math.RadToDeg(this.lockedShotAngle))}`);
-
-        if (this.angleSet == false){
-            console.log('Angle:', Math.floor(Phaser.Math.RadToDeg(this.lockedShotAngle)));
-        }
-
-        this.angleSet = true;
-
-        this.time.delayedCall(10, this.incrementShotPower, [], this);
+                // Calculate the new controlPoint1.y value
+                const controlPoint1Y = normalizedScaleY * (scaleYMax - scaleYMin) + scaleYMin;
+    
+                // Update the controlPoint1 vector with the new value
+                this.controlPoint1.y = controlPoint1Y;
+    
+                console.log(controlPoint1Y);
+    
+                this.point2.y = controlPoint1Y;
+            }           
+        });
+        
     }
 
-    incrementShotPower() {
-
-    }
-
-    setShotPower() {
-        // stop the tween if it's currently running
-        this.tweens.killTweensOf(this.powerLevel);
-
+    setPower() {
         // Lock the current powerLevel
-        this.lockedPowerLevel = this.shotPower;
+        this.lockedPowerLevel = Math.floor(this.powerLevel.scaleY * 100);
 
         // Update the UI text with the locked powerLevel value
         console.log('Power:', Math.floor(this.lockedPowerLevel));
-        this.shotPowerText.setText(`Power: ${this.lockedPowerLevel}`);
-    }
 
+        // Update the UI text with the locked powerLevel value
+        this.shotPowerText.setText(`Power: ${Math.floor(this.lockedPowerLevel)}`);
+    }
+    
+    animateGoal() {
+        this.tweens.add({
+            targets: this.path,
+            t: 1,
+            ease: 'Linear',
+            duration: 3000,
+            yoyo: false,
+            delay: 500,
+        });
+    }
     
 }
