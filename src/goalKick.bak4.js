@@ -1,15 +1,5 @@
 import Phaser, { Game, Scene } from 'phaser'
 
-function normaliseValue(originalValue) {
-    const minValue = -113;
-    const maxValue = -66;
-    const newMin = -1;
-    const newMax = 1;
-
-    const normalisedValue = (originalValue - minValue) / (maxValue - minValue) * (newMax - newMin) + newMin;
-    return normalisedValue;
-}
-
 
 export default class goalKickScene extends Phaser.Scene {
 
@@ -18,37 +8,27 @@ export default class goalKickScene extends Phaser.Scene {
         this.game = game
         this.input;
 
-        this.score = 0;
-        this.scoreText;
-
         //this.mouseX = this.input.mousePointer;
 
         this.path;
         this.curve;
         this.points;
-        //this.line;
+        this.line;
         this.graphics;
         
         this.uiArrow;
         this.powerLevel;
-        this.powerBarLines;
         
         this.goalText;
-        this.pointText;
         this.missText;
-        this.gameoverText;
         
         this.landingX = 40;
-
         this.controlX = 175;
         this.controlY = 300;
         
         this.startPoint = new Phaser.Math.Vector2(175, 700);
         this.controlPoint1 = new Phaser.Math.Vector2(this.controlX, this.controlY);
         this.endPoint = new Phaser.Math.Vector2(this.landingX, 380);
-
-        this.totalShots = 0;
-        this.aimSpeed = 1500;
         
         this.point0;
         this.point1;
@@ -56,8 +36,8 @@ export default class goalKickScene extends Phaser.Scene {
         
         this.shotPower = null;
         this.shotAngle = null;
-        this.normalisedAngle = null;
 
+        this.footy;
         this.ballAnim;
 
         this.gameState = {
@@ -84,11 +64,8 @@ export default class goalKickScene extends Phaser.Scene {
     this.load.image('ui-arrow' ,'images/ui/ui-arrow.png' );
     this.load.image('ui-powerbar' ,'images/ui/ui-powerbar.png' );
     this.load.image('ui-powerbarFill' ,'images/ui/ui-powerbar-fill.png' );
-
     this.load.image('txt-goal' ,'images/ui/txt-goal.png' );
-    this.load.image('txt-point' ,'images/ui/txt-point.png' );
     this.load.image('txt-miss' ,'images/ui/txt-miss.png' );
-    this.load.image('txt-gameover' ,'images/ui/txt-gameover.png' );
 
 	}
 
@@ -102,7 +79,7 @@ export default class goalKickScene extends Phaser.Scene {
             
         //original positions
         this.add.image(180, 400, 'fieldBG');
-        this.add.image(175, 275, 'goals');
+        this.add.image(180, 400, 'goals');
 
 
 
@@ -117,19 +94,13 @@ export default class goalKickScene extends Phaser.Scene {
             fontFamily: 'Arial',
             fontSize: '24px',
             color: '#ffffff'
-        }).setOrigin(0).setAlpha(0);
+        }).setOrigin(0);
 
         this.shotAngleText = this.add.text(10, 50, 'Angle: 0', {
             fontFamily: 'Arial',
             fontSize: '24px',
             color: '#ffffff'
-        }).setOrigin(0).setAlpha(0);
-
-        this.scoreText = this.add.text(10, 10, 'Score: 0', {
-            fontFamily: 'Arial',
-            fontSize: '24px',
-            color: '#ffffff',
-        }).setOrigin(0).setAlpha(1).setShadow(-15, 0, '#fff', 1, true, false);
+        }).setOrigin(0);
 
 
         //            _                                 
@@ -149,7 +120,7 @@ export default class goalKickScene extends Phaser.Scene {
         // /_/                                     
         
         this.powerLevel = this.add.image(330, 775, 'ui-powerbarFill').setOrigin(0.5, 1).setName('powerLevel');
-        this.powerBarLines = this.add.image(330, 635, 'ui-powerbar').setName('powerBarLines');
+        this.add.image(330, 635, 'ui-powerbar');
 
         // Set the initial scale of the power meter
         this.powerLevel.setScale(1, 0);
@@ -187,7 +158,7 @@ export default class goalKickScene extends Phaser.Scene {
             targets: this.endPoint,
             x: 320,
             ease: 'Sine.easeInOut',
-            duration: this.aimSpeed,
+            duration: 1500,
             yoyo: true,
             repeat: -1,
         });
@@ -209,9 +180,15 @@ export default class goalKickScene extends Phaser.Scene {
     
     update() {
 
-        
-
         this.graphics.clear();
+
+        //  Draw the curve through the points
+        // this.graphics.lineStyle(9, 0xff0080, 0.25);
+
+        // this.curve.draw(this.graphics);
+
+        // Get 32 points from the curve
+        //const curvePoints = this.curve.getSpacedPoints(32);
 
         this.graphics.lineStyle(1, 0xffffff, 0.5);
         this.curve.draw(this.graphics, 12);
@@ -224,6 +201,26 @@ export default class goalKickScene extends Phaser.Scene {
             this.graphics.fillCircle(points[i].x, points[i].y, 2);
         }
 
+        // this.line = new Phaser.Geom.Line(this.startPoint.x, this.startPoint.y, this.endPoint.x, this.endPoint.y);
+        // this.graphics.lineStyle(1, 0xcccccc, 1); // Set line style: 1 pixel width, white
+        // this.graphics.strokeLineShape(this.line); // Draw the line
+
+        // // Calculate and draw 32 evenly spaced points along the line
+        // this.graphics.fillStyle(0x00B000, 1); // Set the point color to green
+
+        // const numPoints = 32;
+        // for (let i = 0; i <= numPoints; i++) {
+        //     const t = i / numPoints;
+        //     const x = Phaser.Math.Linear(this.line.x1, this.line.x2, t);
+        //     const y = Phaser.Math.Linear(this.line.y1, this.line.y2, t);
+        //     this.graphics.fillCircle(x, y, 2);
+    
+        //     // Connect line point with corresponding curve point
+        //     this.graphics.lineStyle(1, 0xffff00, 1); // Set line style to yellow
+        //     this.graphics.lineBetween(x, y, curvePoints[i].x, curvePoints[i].y);
+        // }
+
+
         //Game State Management
         switch (this.currentGameState) {
 
@@ -235,11 +232,7 @@ export default class goalKickScene extends Phaser.Scene {
                 this.lockedShotAngle = this.uiArrow.rotation;
     
                 // Log the value of the locked shot angle
-                // this.shotAngleText.setText(`Angle: ${Math.floor(Phaser.Math.RadToDeg(this.lockedShotAngle))}`);
-                this.shotAngle = Math.floor(Phaser.Math.RadToDeg(this.uiArrow.rotation));
-                this.normalisedAngle = normaliseValue(this.shotAngle);
-                this.shotAngleText.setText(`Angle: ${Number(this.normalisedAngle.toFixed(2))}`);
-
+                this.shotAngleText.setText(`Angle: ${Math.floor(Phaser.Math.RadToDeg(this.lockedShotAngle))}`);
 
                 //console.log(this.currentGameState);
                 this.currentGameState = this.gameState.ANIMATING_POWER;
@@ -329,56 +322,22 @@ export default class goalKickScene extends Phaser.Scene {
         this.controlPoint1.y = this.controlY;
         
         //reset endpoint
-        this.endPoint.x = this.landingX;
-
-        // increment shot counter
-        this.totalShots += 1;
-        this.aimSpeed -= 150;
-
-        if (this.totalShots === 5) {
-            this.gameOver();
-            return;
-        }
-
+        this.endPoint.x = 320;
         //restart endpoint tween
         this.tweens.add({
             targets: this.endPoint,
-            x: 320,
+            x: this.landingX,
             ease: 'Sine.easeInOut',
-            duration: this.aimSpeed,
+            duration: 1500,
             yoyo: true,
             repeat: -1,
         });
-
-        console.log(`Total Shots: ${this.totalShots}, Aim speed: ${this.aimSpeed}`);
-
 
         //reset powerbar
         this.powerLevel.setScale(1, 0);
 
         // reset ball position
         this.ballAnim = this.add.follower(this.curve, 175,700, 'footy');
-    }
-
-    gameOver() {
-        console.log("GAME IS OVER");
-
-        this.powerLevel.destroy();
-        this.uiArrow.destroy();
-        this.graphics.destroy();
-        this.powerBarLines.destroy();
-
-        this.gameoverText = this.add.image(180, 400, 'txt-gameover').setAlpha(0.0);
-        this.tweens.add({
-            // Fade in Text
-            targets: this.gameoverText,
-            y: 375,
-            alpha: 1.0,
-            ease: 'Cubic.InOut',
-            duration: 350,
-            yoyo: false,
-            repeat: 0
-        })
     }
 
     powerAnimation() {
@@ -463,35 +422,20 @@ export default class goalKickScene extends Phaser.Scene {
 
     animateText() {
 
-        this.goalText = this.add.image(180, 400, 'txt-goal').setAlpha(0.0);
-        this.pointText = this.add.image(180, 400, 'txt-point').setAlpha(0.0);
-        this.missText = this.add.image(180, 400, 'txt-miss').setAlpha(0.0);
-        
-        const angle = Number(this.normalisedAngle.toFixed(2));    
+        const angle = Math.floor(Phaser.Math.RadToDeg(this.lockedShotAngle));
         const power = Math.floor(this.lockedPowerLevel);
-        console.log(`Angle: ${angle} Power: ${power}`);
+        console.log(angle, power);
 
         let textToShow;
 
-        if (angle >= -0.23 && angle <= 0.18) {
+        if (angle > -97 && angle < -86 && power > 50 && power < 100) {
             textToShow = this.goalText;
-            this.score += 6;
-        } else if (angle >= -0.69 && angle <= -0.32) {
-            textToShow = this.pointText;
-            this.score += 1
-        } else if (angle >= 0.22 && angle <= 0.61) {
-            textToShow = this.pointText;
-            this.score += 1
-        } else if (angle >= 0.63 && angle <= 1.0) {
-            textToShow = this.missText;
-        } else if (angle >= -1.0 && angle <= -0.7) {
-            textToShow = this.missText;
         } else {
-            // Handle the default case here
             textToShow = this.missText;
         }
 
-        console.log(textToShow.texture.key);
+        this.goalText = this.add.image(180, 400, 'txt-goal').setAlpha(0.0);
+        this.missText = this.add.image(180, 400, 'txt-miss').setAlpha(0.0);
 
         const fadeInDuration = 500; // Duration of the fade-in animation (in milliseconds)
         const holdDuration = 750; // Duration of the hold (in milliseconds)
@@ -508,8 +452,6 @@ export default class goalKickScene extends Phaser.Scene {
             yoyo: false,
             repeat: 0,
             onComplete: () => {
-                this.ballAnim.destroy();
-                this.scoreText.setText(`Score: ${this.score}`);
                 //hold for delay
                 this.time.delayedCall(holdDuration, () => {
                     this.tweens.add({
@@ -520,7 +462,7 @@ export default class goalKickScene extends Phaser.Scene {
                         duration: fadeOutDuration,
                         delay: holdDelay, // Delay before starting the fade-out animation
                         onComplete: () => {
-                            
+                            this.ballAnim.destroy();
                             // Reset the game
                             this.time.delayedCall(holdDuration, this.resetGame, [], this)
                         }

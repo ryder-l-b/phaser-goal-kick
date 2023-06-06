@@ -1,16 +1,17 @@
 import Phaser from 'phaser'
 
-import goalKickScene from './goalKick'
-import phaserTest from './phaserTestScene'
-import background from './scenes/background'
-import gameUI from './ui/gameUI'
+import goalKickScene from './goalKick.js'
+// import phaserTest from './phaserTestScene'
+// import background from './scenes/background'
+// import gameUI from './ui/gameUI'
 
 const config = {
 	type: Phaser.AUTO,
-	parent: 'app',
 	scale: {
     parent: 'app',
     mode: Phaser.Scale.CENTER_HORIZONTALLY,
+    // width: window.innerWidth,
+    // height: window.innerHeight
     width: 360,
     height: 800
 },
@@ -22,15 +23,8 @@ const config = {
 			gravity: { y: 200 }
 		},
 	},
-	// 	scene: {
-	// 	preload: preload,
-	// 	create: create,
-	// 	update: update
-	// },
-
-	//scene: [phaserTest],
-
 	scene: [goalKickScene],
+	antialias: true,
 }
 
 export default new Phaser.Game(config)
