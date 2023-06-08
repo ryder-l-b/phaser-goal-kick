@@ -77,7 +77,7 @@ export default class goalKickScene extends Phaser.Scene {
     //load sprites and BG
     this.load.image('fieldBG' ,'images/bg/field-bg.png' );
     //this.load.image('ball' ,'images/sprites/ball.png' );
-    this.load.image('footy' ,'images/sprites/footy.png' );
+    this.load.image('footy' ,'images/sprites/footy-xl.png' );
     this.load.image('goals' ,'images/sprites/goals.png' );
 
     //load UI elements
@@ -102,7 +102,7 @@ export default class goalKickScene extends Phaser.Scene {
             
         //original positions
         this.add.image(180, 400, 'fieldBG');
-        this.add.image(175, 275, 'goals');
+        this.add.image(175, 290, 'goals');
 
 
 
@@ -204,6 +204,7 @@ export default class goalKickScene extends Phaser.Scene {
         //                     /____/   
         // this.footy = this.add.image(175, 700, 'footy').setName('footy');
         this.ballAnim = this.add.follower(this.curve, 175,700, 'footy');
+        this.ballAnim.setScale(0.35);
 
 	}
     
@@ -358,6 +359,7 @@ export default class goalKickScene extends Phaser.Scene {
 
         // reset ball position
         this.ballAnim = this.add.follower(this.curve, 175,700, 'footy');
+        this.ballAnim.setScale(0.35);
     }
 
     gameOver() {
@@ -425,7 +427,7 @@ export default class goalKickScene extends Phaser.Scene {
             duration: 1750,
             yoyo: false,
             delay: 300,
-            ease: 'Cubic.InOut',
+            ease: 'Cubic.Out',
             repeat: 0,
             rotateToPath: true,
             //verticalAdjust: true,
@@ -437,8 +439,8 @@ export default class goalKickScene extends Phaser.Scene {
 
         this.tweens.add({
             targets: this.ballAnim,
-            scale: 0.45,
-            ease: 'Cubic.InOut',
+            scale: 0.01,
+            ease: 'Cubic.Out',
             duration: 1750,
             yoyo: false,
             repeat: 0,
@@ -463,9 +465,9 @@ export default class goalKickScene extends Phaser.Scene {
 
     animateText() {
 
-        this.goalText = this.add.image(180, 400, 'txt-goal').setAlpha(0.0);
-        this.pointText = this.add.image(180, 400, 'txt-point').setAlpha(0.0);
-        this.missText = this.add.image(180, 400, 'txt-miss').setAlpha(0.0);
+        this.goalText = this.add.image(185, 400, 'txt-goal').setAlpha(0.0);
+        this.pointText = this.add.image(185, 400, 'txt-point').setAlpha(0.0);
+        this.missText = this.add.image(185, 400, 'txt-miss').setAlpha(0.0);
         
         const angle = Number(this.normalisedAngle.toFixed(2));    
         const power = Math.floor(this.lockedPowerLevel);
@@ -479,10 +481,10 @@ export default class goalKickScene extends Phaser.Scene {
         } else if (angle >= -0.69 && angle <= -0.32) {
             textToShow = this.pointText;
             this.score += 1
-        } else if (angle >= 0.22 && angle <= 0.61) {
+        } else if (angle >= 0.19 && angle <= 0.61) {
             textToShow = this.pointText;
             this.score += 1
-        } else if (angle >= 0.63 && angle <= 1.0) {
+        } else if (angle >= 0.66 && angle <= 1.0) {
             textToShow = this.missText;
         } else if (angle >= -1.0 && angle <= -0.7) {
             textToShow = this.missText;
