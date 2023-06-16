@@ -1,3 +1,5 @@
+import './style.css'
+
 import Phaser from 'phaser'
 
 import goalKickScene from './goalKick.js'
@@ -13,7 +15,7 @@ const config = {
     // width: window.innerWidth,
     // height: window.innerHeight
     width: 360,
-    height: 800
+    height: 800,
 },
 	// width: 360,
 	// height: 800,
@@ -23,6 +25,7 @@ const config = {
 			gravity: { y: 200 }
 		},
 	},
+	backgroundColor: '#4488aa',
 	scene: [goalKickScene],
 	antialias: true,
 }
