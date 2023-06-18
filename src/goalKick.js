@@ -32,6 +32,8 @@ export default class goalKickScene extends Phaser.Scene {
         this.points;
         //this.line;
         this.graphics;
+        this.graphicsAlpha = 0.0;
+        this.graphicsColour = 0xffcc00;
         
         // Sprites
         this.rav4;
@@ -58,13 +60,14 @@ export default class goalKickScene extends Phaser.Scene {
 
         // Bezier points
         this.landingX = 40;
+        this.landingY = 380;
 
         this.controlX = 175;
         this.controlY = 300;
         
         this.startPoint = new Phaser.Math.Vector2(175, 700);
         this.controlPoint1 = new Phaser.Math.Vector2(this.controlX, this.controlY);
-        this.endPoint = new Phaser.Math.Vector2(this.landingX, 380);
+        this.endPoint = new Phaser.Math.Vector2(this.landingX, this.landingY);
         
         this.point0;
         this.point1;
@@ -265,16 +268,14 @@ export default class goalKickScene extends Phaser.Scene {
     
     update() {
 
-        
-
         this.graphics.clear();
 
-        this.graphics.lineStyle(1, 0xffffff, 0.5);
+        this.graphics.lineStyle(6, this.graphicsColour, this.graphicsAlpha);
         this.curve.draw(this.graphics, 12);
         //  Get 32 points from the curve
         const points = this.curve.getSpacedPoints(32);
         //  Draw the points
-        this.graphics.fillStyle(0xffcc00, 1);
+        this.graphics.fillStyle(0xffcc00, 0.5);
         for (let i = 0; i < points.length; i++)
         {
             this.graphics.fillCircle(points[i].x, points[i].y, 2);
@@ -388,6 +389,7 @@ export default class goalKickScene extends Phaser.Scene {
         
         //reset endpoint
         this.endPoint.x = this.landingX;
+        this.endPoint.y = this.landingY;
 
         // increment shot counter
         this.totalShots += 1;
@@ -420,7 +422,6 @@ export default class goalKickScene extends Phaser.Scene {
 
         console.log(`Total Shots: ${this.totalShots}, Aim speed: ${this.aimSpeed}`);
 
-
         //reset powerbar
         this.powerLevel.setScale(1, 0);
 
@@ -430,6 +431,9 @@ export default class goalKickScene extends Phaser.Scene {
 
         this.grass.destroy();
         this.grass = this.add.image(175, 745, 'grassClump').setOrigin(0.5, 1).setName('grassClump');
+
+        // reset graphic line alpha
+        this.graphicsAlpha = 0.0
     }
 
     gameOver() {
@@ -480,32 +484,45 @@ export default class goalKickScene extends Phaser.Scene {
     }
 
     powerAnimation() {
+        this.graphicsAlpha = 0.5;
+
+        const animSpeed = 1500
+        const animEase  = 'Cubic.InOut'
+
+        const powerX = this.endPoint.x
+        const powerY = this.endPoint.y
+
         
+        this.endPoint.x = this.startPoint.x
+        this.endPoint.y = this.startPoint.y
+
         this.tweens.add({
             targets: this.powerLevel,
             scaleY: 1,
-            duration: 1500,
+            duration: animSpeed,
             yoyo: true,
             repeat: -1,
-            ease: 'Cubic.In',
+            ease: animEase,
         });
 
         this.tweens.add({
             targets: this.controlPoint1,
             y: 20,
-            ease: 'Cubic.In',
-            duration: 1500,
+            ease: animEase,
+            duration: animSpeed,
             yoyo: true,
             repeat: -1,
         });
-        // this.tweens.add({
-        //     targets: this.endPoint,
-        //     x: 400,
-        //     ease: 'Sine.easeInOut',
-        //     duration: 1500,
-        //     yoyo: true,
-        //     repeat: -1,
-        // });
+
+        this.tweens.add({
+            targets: this.endPoint,
+            x: powerX,
+            y: powerY,
+            ease: animEase,
+            duration: animSpeed,
+            yoyo: true,
+            repeat: -1,
+        });
     }
 
     setPower() {
