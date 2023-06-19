@@ -40,8 +40,9 @@ export default class goalKickScene extends Phaser.Scene {
 
         //Grass stuff
         this.grassSprites;
-        this.grassColours = ['#003408', '#004b1b', '#005826', '#0d7030' , '#2e8237'];
+        this.grassColours = ['0x003408', '0x004b1b', '0x005826', '0x0d7030' , '0x2e8237'];
         this.grassEmitter;
+        this.grassPlayed = false;
         
         // UI Sprites
         this.uiArrow;
@@ -320,7 +321,10 @@ export default class goalKickScene extends Phaser.Scene {
             case this.gameState.ANIMATING_GOAL:
                 // Update logic for animating goal
                 this.animateGoal();
-                this.grassAnimation()
+
+                if(this.grassPlayed == false) {
+                    this.grassAnimation()
+                }
                 //console.log(this.currentGameState , 'ANIMATING_GOAL');
 
                 break;
@@ -400,6 +404,15 @@ export default class goalKickScene extends Phaser.Scene {
             return;
         }
 
+        // reset arrow opactiy
+        this.tweens.add({
+            targets: this.uiArrow,
+            alpha: 1,
+            duration: 400,
+            yoyo: false,
+            repeat: 0,
+        });
+
         // Remove sprite from shot counter
         this.tweens.add({
             targets: this.shotCounterSprites[this.totalShots - 1],
@@ -429,8 +442,10 @@ export default class goalKickScene extends Phaser.Scene {
         this.ballAnim = this.add.follower(this.curve, 175,700, 'footy');
         this.ballAnim.setScale(0.35);
 
+        // reset grass
         this.grass.destroy();
         this.grass = this.add.image(175, 745, 'grassClump').setOrigin(0.5, 1).setName('grassClump');
+        this.grassPlayed = false
 
         // reset graphic line alpha
         this.graphicsAlpha = 0.0
@@ -484,6 +499,15 @@ export default class goalKickScene extends Phaser.Scene {
     }
 
     powerAnimation() {
+
+        this.tweens.add({
+            targets: this.uiArrow,
+            alpha: 0,
+            duration: 400,
+            yoyo: false,
+            repeat: 0,
+        });
+
         this.graphicsAlpha = 0.5;
 
         const animSpeed = 1500
@@ -579,18 +603,28 @@ export default class goalKickScene extends Phaser.Scene {
     grassAnimation() {
         console.log('grass animation');
 
-        // this.grassEmitter = this.add.particles(170, 745, 'grass-sprite', {
-        //     frame: { frames: [0, 1, 2, 3], cycle: true },
-        //     lifespan: 1500,
-        //     speed: { min: 100, max: 500 },
-        //     scale: { start: 1.0, end: 0.5 },
-        //     alpha: { start: 1.0, end: 0.0 },
-        //     gravityY: 5,
-        //     emitting: true,
-        //     //tint: { random: [ this.grassColours ] }
-        // });
+        const tint = this.grassColours;
 
-        
+        setTimeout(() => {
+        this.grassEmitter = this.add.particles(175, 740, 'grass-sprite', {
+            frame: { frames: [0, 1, 2, 3], cycle: true },
+            lifespan: 1750,
+            x: { min: -15, max: 15},
+            angle: { min: -60, max: -120 },
+            speed: { min: 250, max: 300 },
+            scale: { start: 1.0, end: 0.5 },
+            alpha: { start: 1.0, end: 0.0 },
+            gravityY: 400,
+            emitting: true,
+            stopAfter: 25,
+            quantity: 25,
+            rotate: { min: 0, max: 360 },
+            // particleTint: ['0x003408', '0x004b1b', '0x005826', '0x0d7030' , '0x2e8237'],
+            tint
+        });
+    }, 350)
+
+        this.grassPlayed = true;
 
     }
 
@@ -616,7 +650,7 @@ export default class goalKickScene extends Phaser.Scene {
         } else if (angle >= -0.70 && angle <= -0.32) {
             textToShow = this.pointText;
             this.score += 1
-        } else if (angle >= 0.19 && angle <= 0.61) {
+        } else if (angle >= 0.19 && angle <= 0.62) {
             textToShow = this.pointText;
             this.score += 1
         } else if (angle >= 0.66 && angle <= 1.0) {
