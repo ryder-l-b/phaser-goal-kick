@@ -101,16 +101,16 @@ export default class goalKickScene extends Phaser.Scene {
 	preload() {
 
     //load sprites and BG
-    this.load.image('fieldBG' ,'images/bg/field-bg.png' );
-    this.load.image('shot' ,'images/sprites/footy_1.png' );
-    this.load.image('footy' ,'images/sprites/footy-xl.png' );
-    this.load.image('goals' ,'images/sprites/goals.png' );
-    this.load.image('rav4', 'images/sprites/rav4-sprite.png');
+    this.load.image('fieldBG' ,'./assets/images/bg/field-bg.png' );
+    this.load.image('shot' ,'./assets/images/sprites/footy_1.png' );
+    this.load.image('footy' ,'./assets/images/sprites/footy-xl.png' );
+    this.load.image('goals' ,'./assets/images/sprites/goals.png' );
+    this.load.image('rav4', './assets/images/sprites/rav4-sprite.png');
 
     // load grass sprites
-    this.load.image('grassClump' ,'images/sprites/grass.png' );
-    //this.load.image('grass-sprite' ,'images/sprites/grass-sprites.png' );
-    this.grassSprites = this.load.spritesheet('grass-sprite', 'images/sprites/grass-sprites.png', { 
+    this.load.image('grassClump' ,'./assets/images/sprites/grass.png' );
+    //this.load.image('grass-sprite' ,'./assets/images/sprites/grass-sprites.png' );
+    this.grassSprites = this.load.spritesheet('grass-sprite', './assets/images/sprites/grass-sprites.png', { 
         frameWidth: 32, 
         frameHeight: 32, 
         endFrame: 4 
@@ -118,16 +118,16 @@ export default class goalKickScene extends Phaser.Scene {
     
 
     //load UI elements
-    this.load.image('ui-arrow' ,'images/ui/ui-arrow.png' );
-    this.load.image('ui-powerbar' ,'images/ui/ui-powerbar.png' );
-    this.load.image('ui-powerbarFill' ,'images/ui/ui-powerbar-fill.png' );
-    this.load.image('ui-shotcounter' ,'images/ui/ui-shotcounter.png' );
+    this.load.image('ui-arrow' ,'./assets/images/ui/ui-arrow.png' );
+    this.load.image('ui-powerbar' ,'./assets/images/ui/ui-powerbar.png' );
+    this.load.image('ui-powerbarFill' ,'./assets/images/ui/ui-powerbar-fill.png' );
+    this.load.image('ui-shotcounter' ,'./assets/images/ui/ui-shotcounter.png' );
 
-    this.load.image('txt-goal' ,'images/ui/txt-goal.png' );
-    this.load.image('txt-point' ,'images/ui/txt-point.png' );
-    this.load.image('txt-miss' ,'images/ui/txt-miss.png' );
-    this.load.image('txt-gameover' ,'images/ui/txt-gameover.png' );
-    this.load.image('txt-second-entry' ,'images/ui/txt-second-entry.png' );
+    this.load.image('txt-goal' ,'./assets/images/ui/txt-goal.png' );
+    this.load.image('txt-point' ,'./assets/images/ui/txt-point.png' );
+    this.load.image('txt-miss' ,'./assets/images/ui/txt-miss.png' );
+    this.load.image('txt-gameover' ,'./assets/images/ui/txt-gameover.png' );
+    this.load.image('txt-second-entry' ,'./assets/images/ui/txt-second-entry.png' );
 
 	}
 
@@ -153,13 +153,13 @@ export default class goalKickScene extends Phaser.Scene {
             fontFamily: this.font,
             fontSize: '24px',
             color: '#ffffff'
-        }).setOrigin(0).setAlpha(1).setShadow(-15, 0, '#fff', 0.5, true, false);;
+        }).setOrigin(0).setAlpha(0).setShadow(-15, 0, '#fff', 0.5, true, false);
 
         this.shotAngleText = this.add.text(10, 90, 'Angle: 0', {
             fontFamily: this.font,
             fontSize: '24px',
             color: '#ffffff'
-        }).setOrigin(0).setAlpha(1).setShadow(-15, 0, '#fff', 0.5, true, false);;
+        }).setOrigin(0).setAlpha(0).setShadow(-15, 0, '#fff', 0.5, true, false);
 
         this.scoreText = this.add.text(10, 10, 'Score: 0', {
             fontFamily: this.font,
