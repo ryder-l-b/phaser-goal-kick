@@ -10,6 +10,10 @@ function normaliseValue(originalValue) {
     return normalisedValue;
 }
 
+function normaliseScale(val, max, min) {
+    return (val - min) / (max - min);
+}
+
 
 export default class goalKickScene extends Phaser.Scene {
 
@@ -55,6 +59,7 @@ export default class goalKickScene extends Phaser.Scene {
         this.goalText;
         this.pointText;
         this.missText;
+        this.weakText
         this.gameoverText;
         this.secondEntryText;
         
@@ -126,6 +131,7 @@ export default class goalKickScene extends Phaser.Scene {
     this.load.image('txt-goal' ,'./assets/images/ui/txt-goal.png' );
     this.load.image('txt-point' ,'./assets/images/ui/txt-point.png' );
     this.load.image('txt-miss' ,'./assets/images/ui/txt-miss.png' );
+    this.load.image('txt-weak' ,'./assets/images/ui/txt-weak.png' );
     this.load.image('txt-gameover' ,'./assets/images/ui/txt-gameover.png' );
     this.load.image('txt-second-entry' ,'./assets/images/ui/txt-second-entry.png' );
 
@@ -165,7 +171,14 @@ export default class goalKickScene extends Phaser.Scene {
             fontFamily: this.font,
             fontSize: '24px',
             color: '#ffffff',
-        }).setOrigin(0).setAlpha(1).setShadow(-15, 0, '#fff', 0.5, true, false);
+        }).setOrigin(0).setAlpha(1).setShadow(-15, 0, '#fff', 0.5, true, false)
+        .setInteractive({cursor: 'pointer'});
+        
+        this.scoreText.on('pointerdown', () => {
+            //console.log(`drawButton pressed`);
+            this.submitScore();
+        });
+
 
 
         //            _                                 
@@ -269,6 +282,7 @@ export default class goalKickScene extends Phaser.Scene {
     
     update() {
 
+        
         this.graphics.clear();
 
         this.graphics.lineStyle(6, this.graphicsColour, this.graphicsAlpha);
@@ -559,7 +573,30 @@ export default class goalKickScene extends Phaser.Scene {
         // Update the UI text with the locked powerLevel value
         this.shotPowerText.setText(`Power: ${Math.floor(this.lockedPowerLevel)}`);
 
+        // Calculate the target scale factor based on powerLevel.scaleY
+        const initialScale = 0.35;
+        const minimumScale = 0.01;
+        const targetScaleFactor = this.powerLevel.scaleY;
 
+        // Calculate the target scale using the targetScaleFactor
+        const targetScale = initialScale + targetScaleFactor * (minimumScale - initialScale);
+        console.log(`Target Scale (${targetScale}) = Target Scale Factor: ${targetScaleFactor} * (Minimum Scale: ${minimumScale} - Initial Scale: ${initialScale})`);
+
+        // Start the ballAnim tween
+        this.tweens.add({
+            targets: this.ballAnim,
+            scaleY: targetScale, // Tween the scaleY property to the minimumScale value
+            scaleX: targetScale, // Tween the scaleX property to the minimumScale value
+            duration: 1750,
+            ease: 'Cubic.Out',
+            yoyo: false,
+            repeat: 0,
+            onComplete: () => {
+                this.animateText();
+            }
+        });
+
+        // Start the path-following tween if needed
         this.ballAnim.startFollow({
             duration: 1750,
             yoyo: false,
@@ -567,21 +604,31 @@ export default class goalKickScene extends Phaser.Scene {
             ease: 'Cubic.Out',
             repeat: 0,
             rotateToPath: true,
-            //verticalAdjust: true,
             rotationOffset: 90,
-            onComplete: () => {
-                this.animateText();
-            }
         });
 
-        this.tweens.add({
-            targets: this.ballAnim,
-            scale: 0.01,
-            ease: 'Cubic.Out',
-            duration: 1750,
-            yoyo: false,
-            repeat: 0,
-        });
+        // this.ballAnim.startFollow({
+        //     duration: 1750,
+        //     yoyo: false,
+        //     delay: 300,
+        //     ease: 'Cubic.Out',
+        //     repeat: 0,
+        //     rotateToPath: true,
+        //     //verticalAdjust: true,
+        //     rotationOffset: 90,
+        //     onComplete: () => {
+        //         this.animateText();
+        //     }
+        // });
+
+        // this.tweens.add({
+        //     targets: this.ballAnim,
+        //     scale: targetScale * -1,
+        //     ease: 'Cubic.Out',
+        //     duration: 1750,
+        //     yoyo: false,
+        //     repeat: 0,
+        // });
 
     }
     
@@ -637,6 +684,7 @@ export default class goalKickScene extends Phaser.Scene {
         this.goalText = this.add.image(185, 400, 'txt-goal').setAlpha(0.0);
         this.pointText = this.add.image(185, 400, 'txt-point').setAlpha(0.0);
         this.missText = this.add.image(185, 400, 'txt-miss').setAlpha(0.0);
+        this.weakText = this.add.image(175, 400, 'txt-weak').setAlpha(0.0);
         
         const angle = Number(this.normalisedAngle.toFixed(2));    
         const power = Math.floor(this.lockedPowerLevel);
@@ -644,22 +692,22 @@ export default class goalKickScene extends Phaser.Scene {
 
         let textToShow;
 
-        if (angle >= -0.28 && angle <= 0.18) {
+        if (angle >= -0.28 && angle <= 0.19 && power >= 97) {
             textToShow = this.goalText;
             this.score += 6;
-        } else if (angle >= -0.70 && angle <= -0.32) {
+        } else if (angle >= -0.70 && angle <= -0.32 && power >= 97) {
             textToShow = this.pointText;
             this.score += 1
-        } else if (angle >= 0.19 && angle <= 0.62) {
+        } else if (angle >= 0.20 && angle <= 0.62 && power >= 97) {
             textToShow = this.pointText;
             this.score += 1
-        } else if (angle >= 0.66 && angle <= 1.0) {
+        } else if (angle >= 0.66 && angle <= 1.0 && power >= 95) {
             textToShow = this.missText;
-        } else if (angle >= -1.0 && angle <= -0.71) {
+        } else if (angle >= -1.0 && angle <= -0.71 && power >= 95) {
             textToShow = this.missText;
         } else {
             // Handle the default case here
-            textToShow = this.missText;
+            textToShow = this.weakText;
         }
 
         console.log(textToShow.texture.key);
@@ -699,4 +747,10 @@ export default class goalKickScene extends Phaser.Scene {
             }
         })
     }
+
+    submitScore() {
+        console.log('submit score');
+        location.href = "http://www.adlabtesting.com.au";
+    }
+
 }
