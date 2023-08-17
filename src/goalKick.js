@@ -582,13 +582,15 @@ export default class goalKickScene extends Phaser.Scene {
         const targetScale = initialScale + targetScaleFactor * (minimumScale - initialScale);
         console.log(`Target Scale (${targetScale}) = Target Scale Factor: ${targetScaleFactor} * (Minimum Scale: ${minimumScale} - Initial Scale: ${initialScale})`);
 
+        let easeType = 'Quartic.InOut';
+
         // Start the ballAnim tween
         this.tweens.add({
             targets: this.ballAnim,
             scaleY: targetScale, // Tween the scaleY property to the minimumScale value
             scaleX: targetScale, // Tween the scaleX property to the minimumScale value
             duration: 1750,
-            ease: 'Cubic.Out',
+            ease: easeType,
             yoyo: false,
             repeat: 0,
             onComplete: () => {
@@ -601,7 +603,7 @@ export default class goalKickScene extends Phaser.Scene {
             duration: 1750,
             yoyo: false,
             delay: 300,
-            ease: 'Cubic.Out',
+            ease: easeType,
             repeat: 0,
             rotateToPath: true,
             rotationOffset: 90,
