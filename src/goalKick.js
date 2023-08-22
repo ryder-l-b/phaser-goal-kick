@@ -582,14 +582,33 @@ export default class goalKickScene extends Phaser.Scene {
         const targetScale = initialScale + targetScaleFactor * (minimumScale - initialScale);
         console.log(`Target Scale (${targetScale}) = Target Scale Factor: ${targetScaleFactor} * (Minimum Scale: ${minimumScale} - Initial Scale: ${initialScale})`);
 
-        let easeType = 'Quartic.InOut';
+        let easeType;
+        let animDuration;
+
+        if (this.lockedPowerLevel <= 80) {
+            animDuration = 1750;
+            easeType = 'Cubic.Out';
+        }
+        else if (this.lockedPowerLevel <= 60) {
+            animDuration = 1200;
+            easeType = 'Cubic.Out';
+        }
+        else if (this.lockedPowerLevel >= 50) {
+            animDuration = 750;
+            easeType = 'Cubic.Out';
+        }
+        else if (this.lockedPowerLevel > 49) {
+            animDuration = 250;
+            easeType = 'Cubic.In';
+        }
 
         // Start the ballAnim tween
         this.tweens.add({
             targets: this.ballAnim,
             scaleY: targetScale, // Tween the scaleY property to the minimumScale value
             scaleX: targetScale, // Tween the scaleX property to the minimumScale value
-            duration: 1750,
+            duration: animDuration,
+            delay: 300,
             ease: easeType,
             yoyo: false,
             repeat: 0,
@@ -694,13 +713,13 @@ export default class goalKickScene extends Phaser.Scene {
 
         let textToShow;
 
-        if (angle >= -0.28 && angle <= 0.19 && power >= 97) {
+        if (angle >= -0.28 && angle <= 0.19 && power >= 95) {
             textToShow = this.goalText;
             this.score += 6;
-        } else if (angle >= -0.70 && angle <= -0.32 && power >= 97) {
+        } else if (angle >= -0.70 && angle <= -0.32 && power >= 95) {
             textToShow = this.pointText;
             this.score += 1
-        } else if (angle >= 0.20 && angle <= 0.62 && power >= 97) {
+        } else if (angle >= 0.20 && angle <= 0.62 && power >= 95) {
             textToShow = this.pointText;
             this.score += 1
         } else if (angle >= 0.66 && angle <= 1.0 && power >= 95) {
