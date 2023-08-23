@@ -24,6 +24,7 @@
   height: 100vh;
   position: fixed;
   inset: 0;
+  z-index: -10;
 
   display: grid;
   place-items: center;
@@ -63,6 +64,48 @@
   z-index:1000;
   color: white;
   font-size:3rem;
+}
+
+.app-fg {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+
+  display: grid;
+  place-items: center;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+.fg-ui {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+
+}
+
+.btn {
+  appearance: none;
+  background: rgb(244,244,244);
+  background: linear-gradient(180deg, rgba(244,244,244,1) 0%, rgba(228,228,228,1) 100%); 
+  font-size: 3rem;
+  /* text-transform: uppercase; */
+  border-radius: 0.25em;
+  border: black solid 0.25rem;
+  padding: 0.2em 0.4em;
+  margin-top: 2.5em;
+  transition: all 300ms ease-in-out;
+  cursor: pointer;
+  z-index: -999;
+  opacity: 1;
+}
+
+.btn:hover {
+  background: rgb(230,230,230);
+  background: linear-gradient(180deg, rgba(230,230,230,1) 0%, rgba(189,189,189,1) 100%); 
 }
 
 .font-unity {

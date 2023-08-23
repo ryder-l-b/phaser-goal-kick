@@ -14,6 +14,8 @@ function normaliseScale(val, max, min) {
     return (val - min) / (max - min);
 }
 
+const submitBtn = document.getElementById('btn_next');
+
 
 export default class goalKickScene extends Phaser.Scene {
 
@@ -172,13 +174,6 @@ export default class goalKickScene extends Phaser.Scene {
             fontSize: '24px',
             color: '#ffffff',
         }).setOrigin(0).setAlpha(1).setShadow(-15, 0, '#fff', 0.5, true, false)
-        .setInteractive({cursor: 'pointer'});
-        
-        this.scoreText.on('pointerdown', () => {
-            //console.log(`drawButton pressed`);
-            this.submitScore();
-        });
-
 
 
         //            _                                 
@@ -277,6 +272,10 @@ export default class goalKickScene extends Phaser.Scene {
         //  \__, /_/   \__,_/____/____/  
         // /____/                        
         this.grass = this.add.image(175, 745, 'grassClump').setOrigin(0.5, 1).setName('grassClump');
+
+        submitBtn.addEventListener('click', () => {
+            this.submitScore();
+        });
 
 	}
     
@@ -447,14 +446,23 @@ export default class goalKickScene extends Phaser.Scene {
             repeat: -1,
         });
 
-        console.log(`Total Shots: ${this.totalShots}, Aim speed: ${this.aimSpeed}`);
+        //console.log(`Total Shots: ${this.totalShots}, Aim speed: ${this.aimSpeed}`);
 
         //reset powerbar
         this.powerLevel.setScale(1, 0);
 
         // reset ball position
         this.ballAnim = this.add.follower(this.curve, 175,700, 'footy');
+        this.ballAnim.setAlpha(0);
         this.ballAnim.setScale(0.35);
+
+        this.tweens.add({
+            targets: this.ballAnim,
+            alpha: 1.0,
+            ease: 'Sine.easeInOut',
+            duration: 200,
+            yoyo: false,
+        });
 
         // reset grass
         this.grass.destroy();
@@ -466,7 +474,7 @@ export default class goalKickScene extends Phaser.Scene {
     }
 
     gameOver() {
-        console.log("GAME IS OVER");
+        //console.log("GAME IS OVER");
 
         this.powerLevel.destroy();
         this.uiArrow.destroy();
@@ -508,6 +516,8 @@ export default class goalKickScene extends Phaser.Scene {
                     yoyo: false,
                     repeat: 0,
                 })
+                submitBtn.style.opacity = '1.0';
+                submitBtn.style.zIndex = '10';
             }
         })
     }
@@ -567,10 +577,9 @@ export default class goalKickScene extends Phaser.Scene {
         // Lock the current powerLevel
         this.lockedPowerLevel = Math.floor(this.powerLevel.scaleY * 100);
 
+        
         // Update the UI text with the locked powerLevel value
-        console.log('Power:', Math.floor(this.lockedPowerLevel));
-
-        // Update the UI text with the locked powerLevel value
+        //console.log('Power:', Math.floor(this.lockedPowerLevel));
         this.shotPowerText.setText(`Power: ${Math.floor(this.lockedPowerLevel)}`);
 
         // Calculate the target scale factor based on powerLevel.scaleY
@@ -580,7 +589,7 @@ export default class goalKickScene extends Phaser.Scene {
 
         // Calculate the target scale using the targetScaleFactor
         const targetScale = initialScale + targetScaleFactor * (minimumScale - initialScale);
-        console.log(`Target Scale (${targetScale}) = Target Scale Factor: ${targetScaleFactor} * (Minimum Scale: ${minimumScale} - Initial Scale: ${initialScale})`);
+        //console.log(`Target Scale (${targetScale}) = Target Scale Factor: ${targetScaleFactor} * (Minimum Scale: ${minimumScale} - Initial Scale: ${initialScale})`);
 
         let easeType;
         let animDuration;
@@ -590,7 +599,7 @@ export default class goalKickScene extends Phaser.Scene {
             easeType = 'Cubic.Out';
         }
         else if (this.lockedPowerLevel <= 60) {
-            animDuration = 1200;
+            animDuration = 1500;
             easeType = 'Cubic.Out';
         }
         else if (this.lockedPowerLevel >= 50) {
@@ -608,7 +617,7 @@ export default class goalKickScene extends Phaser.Scene {
             scaleY: targetScale, // Tween the scaleY property to the minimumScale value
             scaleX: targetScale, // Tween the scaleX property to the minimumScale value
             duration: animDuration,
-            delay: 300,
+            delay: 500,
             ease: easeType,
             yoyo: false,
             repeat: 0,
@@ -669,7 +678,7 @@ export default class goalKickScene extends Phaser.Scene {
     }
 
     grassAnimation() {
-        console.log('grass animation');
+        //console.log('grass animation');
 
         const tint = this.grassColours;
 
@@ -705,7 +714,7 @@ export default class goalKickScene extends Phaser.Scene {
         this.goalText = this.add.image(185, 400, 'txt-goal').setAlpha(0.0);
         this.pointText = this.add.image(185, 400, 'txt-point').setAlpha(0.0);
         this.missText = this.add.image(185, 400, 'txt-miss').setAlpha(0.0);
-        this.weakText = this.add.image(175, 400, 'txt-weak').setAlpha(0.0);
+        this.weakText = this.add.image(180, 400, 'txt-weak').setAlpha(0.0);
         
         const angle = Number(this.normalisedAngle.toFixed(2));    
         const power = Math.floor(this.lockedPowerLevel);
@@ -731,12 +740,24 @@ export default class goalKickScene extends Phaser.Scene {
             textToShow = this.weakText;
         }
 
-        console.log(textToShow.texture.key);
+        //console.log(textToShow.texture.key);
 
         const fadeInDuration = 500; // Duration of the fade-in animation (in milliseconds)
         const holdDuration = 750; // Duration of the hold (in milliseconds)
         const fadeOutDuration = 500; // Duration of the fade-out animation (in milliseconds)
         const holdDelay = 500; // Delay before starting the fade-out animation (in milliseconds)
+
+        this.tweens.add({
+            // Fade out Text
+            targets: this.ballAnim,
+            alpha: 0, // Fade out to transparency
+            duration: 200,
+            delay: 0, // Delay before starting the fade-out animation
+            onComplete: () => {
+                // Reset the game
+                this.ballAnim.destroy();
+            }
+        })
 
         this.tweens.add({
             // Fade in Text
@@ -748,7 +769,7 @@ export default class goalKickScene extends Phaser.Scene {
             yoyo: false,
             repeat: 0,
             onComplete: () => {
-                this.ballAnim.destroy();
+                
                 this.scoreText.setText(`Score: ${this.score}`);
                 //hold for delay
                 this.time.delayedCall(holdDuration, () => {
@@ -771,7 +792,9 @@ export default class goalKickScene extends Phaser.Scene {
 
     submitScore() {
         console.log('submit score');
-        location.href = "http://www.adlabtesting.com.au";
+        location.href = "http://www.adlabtesting.com.au" + "?score=" + this.score;
     }
+
+
 
 }
