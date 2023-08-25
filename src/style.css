@@ -67,8 +67,7 @@
 }
 
 .app-fg {
-  width: 100vw;
-  height: 100vh;
+
   position: fixed;
   inset: 0;
   z-index: 10;
@@ -91,16 +90,18 @@
   appearance: none;
   background: rgb(244,244,244);
   background: linear-gradient(180deg, rgba(244,244,244,1) 0%, rgba(228,228,228,1) 100%); 
-  font-size: 3rem;
-  /* text-transform: uppercase; */
-  border-radius: 0.25em;
-  border: black solid 0.25rem;
-  padding: 0.2em 0.4em;
-  margin-top: 2.5em;
-  transition: all 300ms ease-in-out;
   cursor: pointer;
-  z-index: -999;
-  opacity: 1;
+
+  font-size: 3rem;
+  border-radius: 0.25em;
+  border: black solid 0.35rem;
+  transition: all 300ms ease-in-out;
+  box-shadow: 0.15em 0.15em 0.5em rgba(0,0,0,0.65);
+  
+  padding: 0.2em 0.4em;
+  margin-top: 1em;
+
+  animation: fadeIn 500ms ease-in-out;
 }
 
 .btn:hover {
@@ -110,6 +111,17 @@
 
 .font-unity {
   font-family: 'TCCC-UnityHeadline', sans-serif;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0%);
+  }
 }
 
 /* background: rgb(0,10,42); */

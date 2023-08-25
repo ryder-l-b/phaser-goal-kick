@@ -14,8 +14,6 @@ function normaliseScale(val, max, min) {
     return (val - min) / (max - min);
 }
 
-const submitBtn = document.getElementById('btn_next');
-
 
 export default class goalKickScene extends Phaser.Scene {
 
@@ -176,6 +174,17 @@ export default class goalKickScene extends Phaser.Scene {
         }).setOrigin(0).setAlpha(1).setShadow(-15, 0, '#fff', 0.5, true, false)
 
 
+        let lastTime = 0;
+        this.scoreText.setInteractive({ useHandCursor: true });
+        this.scoreText.on('pointerdown', () => {
+            let clickDelay = this.time.now - lastTime;
+            lastTime = this.time.now;
+            if(clickDelay < 350) {
+                this.gameOver()
+            }
+        });
+
+
         //            _                                 
         //     __  __(_)  ____ _______________ _      __
         //    / / / / /  / __ `/ ___/ ___/ __ \ | /| / /
@@ -273,9 +282,6 @@ export default class goalKickScene extends Phaser.Scene {
         // /____/                        
         this.grass = this.add.image(175, 745, 'grassClump').setOrigin(0.5, 1).setName('grassClump');
 
-        submitBtn.addEventListener('click', () => {
-            this.submitScore();
-        });
 
 	}
     
@@ -348,7 +354,6 @@ export default class goalKickScene extends Phaser.Scene {
                 break;
         }
 
-        //console.log(this.controlPoint1.y);
 
     }
 
@@ -474,6 +479,7 @@ export default class goalKickScene extends Phaser.Scene {
     }
 
     gameOver() {
+        
         //console.log("GAME IS OVER");
 
         this.powerLevel.destroy();
@@ -481,6 +487,9 @@ export default class goalKickScene extends Phaser.Scene {
         this.graphics.destroy();
         this.powerBarLines.destroy();
         this.shotCounter.destroy();
+        this.shotCounterSprites.forEach((sprite) => {
+            sprite.destroy();
+        });
 
         this.gameoverText = this.add.image(180, 300, 'txt-gameover').setAlpha(0.0);
         this.secondEntryText = this.add.image(185, 455, 'txt-second-entry').setAlpha(0.0);
@@ -496,16 +505,16 @@ export default class goalKickScene extends Phaser.Scene {
             yoyo: false,
             repeat: 0,
             onComplete: () => {
-                this.tweens.add({
-                    // Fade in Text
-                    targets: this.secondEntryText,
-                    y: 430,
-                    alpha: 1.0,
-                    ease: 'Cubic.InOut',
-                    duration: 500,
-                    yoyo: false,
-                    repeat: 0,
-                }),
+                // this.tweens.add({
+                //     // Fade in Text
+                //     targets: this.secondEntryText,
+                //     y: 430,
+                //     alpha: 1.0,
+                //     ease: 'Cubic.InOut',
+                //     duration: 500,
+                //     yoyo: false,
+                //     repeat: 0,
+                // }),
                 this.tweens.add({
                     // Fade in Rav4 sprite
                     targets: this.rav4,
@@ -516,8 +525,29 @@ export default class goalKickScene extends Phaser.Scene {
                     yoyo: false,
                     repeat: 0,
                 })
-                submitBtn.style.opacity = '1.0';
-                submitBtn.style.zIndex = '10';
+
+                // Create the new HTML elements
+                const divElement = document.createElement('div');
+                divElement.className = 'app-fg';
+
+                const buttonElement = document.createElement('button');
+                buttonElement.id = 'btn_next';
+                buttonElement.className = 'btn font-unity';
+                buttonElement.textContent = 'OK';
+
+                // Append button to the div
+                divElement.appendChild(buttonElement);
+
+                // Append the div to the document body
+                document.body.appendChild(divElement);
+
+                const submitBtn = document.getElementById('btn_next');
+                if (submitBtn) {
+                    submitBtn.addEventListener('click', () => {
+                    this.submitScore();
+                    });
+            }
+
             }
         })
     }
@@ -791,10 +821,7 @@ export default class goalKickScene extends Phaser.Scene {
     }
 
     submitScore() {
-        console.log('submit score');
-        location.href = "http://www.adlabtesting.com.au" + "?score=" + this.score;
+        location.href = "https://winaravfootypromo.com.au/thanks/" + "?score=" + this.score;
     }
-
-
 
 }
