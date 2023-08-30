@@ -174,15 +174,15 @@ export default class goalKickScene extends Phaser.Scene {
         }).setOrigin(0).setAlpha(1).setShadow(-15, 0, '#fff', 0.5, true, false)
 
 
-        let lastTime = 0;
-        this.scoreText.setInteractive({ useHandCursor: true });
-        this.scoreText.on('pointerdown', () => {
-            let clickDelay = this.time.now - lastTime;
-            lastTime = this.time.now;
-            if(clickDelay < 350) {
-                this.gameOver()
-            }
-        });
+        //let lastTime = 0;
+        // this.scoreText.setInteractive({ useHandCursor: true });
+        // this.scoreText.on('pointerdown', () => {
+        //     let clickDelay = this.time.now - lastTime;
+        //     lastTime = this.time.now;
+        //     if(clickDelay < 350) {
+        //         this.gameOver()
+        //     }
+        // });
 
 
         //            _                                 
